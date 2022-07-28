@@ -12,6 +12,12 @@ const schema = buildSchema(`
     type User{
         id: Int
         name: String
+        items: [Item!]
+    }
+
+    type Item{
+        id: ID
+        name: String
     }
 
     type Query {
@@ -20,12 +26,15 @@ const schema = buildSchema(`
     }
 
     type Mutation{
-        addUser(name: String) : User 
+        addUser(name: String) : User
+        addItems(id: ID, name: String) : Item
+        addUserItems(id:Int): User
     }
 
 
 `);
 
+const items = []
 const users = []
 var counter = 1
 
@@ -48,7 +57,20 @@ const root = {
         users.push(us);
         counter++;
         return us
+    },
+
+    addItems: (data)=>{
+        const it = {'id': data.id, "name": data.name}
+        items.push(it)
+        return it
+    },
+
+    addUserItems:({id})=>{
+       let us = users.find(u=>u.id === id)
+       us.items = items
+       return us
     }
+
 
 
 }
