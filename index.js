@@ -310,7 +310,7 @@ app.use('/graphql', graphqlHTTP({
     graphiql: true
 }));
 
-app.listen("clothing-store-apollo-grapghql-production.up.railway.app",()=>console.log('server running in port 4000'));
+app.listen(4000,()=>console.log('server running in port 4000'));
 
 
 
