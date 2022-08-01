@@ -1,9 +1,17 @@
 const express = require('express')
+const cookieParser = require('cookie-parser');
 const { graphqlHTTP } = require('express-graphql')
 const { buildSchema } = require('graphql')
+const cors = require('cors')
+
 
 
 const app = express()
+
+app.use(express.urlencoded({extended:true, limit:'50mb'}))
+app.use(express.json({limit: '50mb'}))
+app.use(cookieParser());
+app.use(cors())
 
 //schemas
 
@@ -25,13 +33,13 @@ const schema = buildSchema(`
 
     type Query {
         users: [User]
-        user(id: Int): User
+        user(name: String): User
     }
 
     type Mutation{
         addUser(name: String) : User
         addItems(id: ID, name: String) : Item
-        addUserItems(id:Int itemsId: [Int]): User
+        addUserItems(name:String itemsId: [Int]): User
     }
 
 
@@ -262,16 +270,19 @@ const root = {
 },
     user: (data)=>{
         for (let i = 0; i<users.length; i++){
-            if(users[i].id === data.id) return users[i]
+            if(users[i].name === data.name) return users[i]
             
         }
     },
 
     addUser: (data)=>{
         const us = { 'id': counter, "name": data.name }
-        users.push(us);
-        counter++;
-        return us
+        if(users.some(e=>e.name === data.name) === false){
+            users.push(us);
+            counter++;
+            return us
+        }
+        else throw Error("Este usuario ya se añadió")
     },
 
     addItems: (data)=>{
@@ -280,9 +291,9 @@ const root = {
         return it
     },
 
-    addUserItems:({id, itemsId})=>{
+    addUserItems:({name, itemsId})=>{
         let selected = []
-       let us = users.find(u=>u.id === id)
+       let us = users.find(u=>u.name === name)
        itemsId.map(i=>items.filter(it=>it.id === i)).map(a=>selected.push(a[0]))
        us.items = selected
        return us
