@@ -310,7 +310,7 @@ app.use('/graphql', graphqlHTTP({
     graphiql: true
 }));
 
-app.listen(4000,()=>console.log('server running in port 4000'));
+app.listen(`${PORT}`,()=>console.log('server running in port 4000'));
 
 
 
